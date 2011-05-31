@@ -1,0 +1,13 @@
+Euclid Dev Error Viewer:
+
+This app is populated via the GAE bulk loader. To use the bulk loader:
+
+1. Prep a CSV file using the schema in sensor_statistics.csv - sample.csv is a subset of this file for populating the dev server
+2. bulkloadercfg.yaml and bulkimporthelper.py are used by the appcfg.py script to use the bulkloader - configure as necessary to make schema modifications
+3. To run the bulkloader (from the project root):
+
+DEV: appcfg.py upload_data --application=judd-euclid --kind=DataSample --config_file=bulkloadercfg.yaml --filename=<file>.csv --url=http://localhost:8082/_ah/remote_api
+
+PROD: appcfg.py upload_data --application=judd-euclid --kind=DataSample --config_file=bulkloadercfg.yaml --filename=sensor_statistics.csv --url=http://judd-euclid.appspot.com/_ah/remote_api
+
+NB: Due to an issue with Base64 not encoding the id values properly, the config file is set up to autogenerate Keys. Running the bulkloader for the same dataset will duplicate the data.

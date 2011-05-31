@@ -1,0 +1,71 @@
+# Hit Data bulkloader.yaml file.
+python_preamble:
+- import: base64
+- import: re
+- import: os
+- import: sys
+- import: google.appengine.ext.bulkload.transform
+- import: google.appengine.ext.bulkload.bulkloader_wizard
+- import: google.appengine.ext.db
+- import: google.appengine.api.datastore
+- import: google.appengine.api.users
+- import: datetime
+- import: models
+- import: bulkimporthelper
+
+transformers:
+
+- model: models.DataSample
+  connector: csv
+  connector_options:
+      #add connector options as needed
+  property_map:
+    #  Currently experiencing GAE bug with base64 - not handling keys properly
+    #  Using ints in place of strings as key param fails silently with success msg
+    #  Uncomment to generate custom keys - leave commented to let GAE generate keys
+    #
+    #- property: __key__
+    #  external_name: "id"
+    #  export_transform: transform.key_id_or_name_as_string
+    
+    #"lambda x: datetime.datetime.fromtimestamp(float(x))"
+
+    - property: lastHit
+      external_name: "last_hit_received_ts"
+      import_transform: bulkimporthelper.date_helper
+      export_transform: transform.export_date_time('%Y-%m-%dT%H:%M:%S')
+
+    - property: numHits
+      external_name: "num_hits_last_hour"
+      import_transform: transform.none_if_empty(int)
+
+    - property: s3FileStatus
+      external_name: "last_s3_file_status"
+      import_transform: bulkimporthelper.bool_helper
+
+    - property: s3Filename
+      external_name: "last_s3_file_name"
+      import_transform: bulkimporthelper.string_helper
+
+    - property: s3Timestamp
+      external_name: "last_s3_file_written_ts"
+      import_transform: bulkimporthelper.date_helper
+      export_transform: transform.export_date_time('%Y-%m-%dT%H:%M:%S')
+
+    - property: sensor
+      external_name: "sensor"
+      import_transform: bulkimporthelper.string_helper
+
+    - property: site
+      external_name: "site"
+      import_transform: bulkimporthelper.string_helper
+
+    - property: timeStamp
+      external_name: "ts"
+      import_transform: bulkimporthelper.date_helper
+      export_transform: transform.export_date_time('%Y-%m-%dT%H:%M:%S')
+
+    - property: user
+      external_name: "USER"
+      import_transform: bulkimporthelper.string_helper
+

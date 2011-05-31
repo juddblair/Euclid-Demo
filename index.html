@@ -1,0 +1,175 @@
+<html>
+  <head>
+	<title>Euclid Error Tracker</title>
+	
+	<style type="text/css" title="currentStyle">
+		@import "/css/demo_page.css";
+		@import "/css/demo_table.css";
+		@import "/css/cupertino/jquery-ui-1.8.13.custom.css";
+		.ui-timepicker-div .ui-widget-header{ margin-bottom: 8px; }
+		.ui-timepicker-div dl{ text-align: left; }
+		.ui-timepicker-div dl dt{ height: 25px; }
+		.ui-timepicker-div dl dd{ margin: -25px 0 10px 65px; }
+		.ui-timepicker-div td { font-size: 90%; }
+	</style>
+	
+	<script type="text/javascript" src="/js/jquery.js"></script>
+	<script type="text/javascript" src="/js/jquery.dataTables.min.js"></script>
+	<script type="text/javascript" src="/js/jquery.ui.custom.min.js"></script>
+	<script type="text/javascript" src="/js/jquery.ui.timepicker.addon.js"></script>
+	<script type="text/javascript" src="/js/jsapi.js"></script>
+	<script type="text/javascript">
+	
+	//JQuery elements
+	$(document).ready(function() {
+		$('#amazon_errors').dataTable();
+		$('#sensor_errors').dataTable();
+		$( "#main_content" ).accordion();
+			
+		$( "#start_date" ).datetimepicker({
+			dateFormat: 'yy-mm-dd',
+			timeFormat: 'hh:mm:ss',
+		});
+		$( "#end_date" ).datetimepicker({
+			dateFormat: 'yy-mm-dd',
+			timeFormat: 'hh:mm:ss',
+		});
+			
+		{% if message %}
+		$( "#dialog" ).delay(1500).effect("drop", 500);
+		{% endif %}
+		
+		{% if pageTitle %}
+		$( "#queryText" ).delay(5000).effect("drop", 500);
+		{% endif %}
+	} );
+	
+	//Render Graphing JS if data is available
+	{% if graphName %}
+	
+	google.load("visualization", "1", {packages:["corechart"]});
+	google.setOnLoadCallback(drawChart);
+	
+	function drawChart() {
+		var data = new google.visualization.DataTable();
+		data.addColumn('string', 'Date');
+		data.addColumn('number', 'hits');
+		data.addRows({{graphData|length}});
+		
+		{% for point in graphData %}
+        	data.setValue({{forloop.counter0}}, 0, "{{point.0}}");
+        	data.setValue({{forloop.counter0}}, 1, {{point.1}});
+		{% endfor %}
+		
+		var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+		chart.draw(data, {width: 1000, height: 350, title: "{{graphName}}"});
+	}
+
+	{% endif %}
+	
+	</script>
+  </head>
+  <body>
+	
+	<div id='header'>
+		<img src="/images/euclid_logo.png" alt="Euclid Elements"/>
+		</br>
+	</div>
+	
+	<!-- Div for messages - warnings piped up from the controller -->
+	{% if message %}
+	<div id="dialog">
+		<div class="ui-widget">
+			<div class="ui-state-error ui-corner-all" style="padding: 0 .7em;"> 
+				<p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span> 
+				<strong>{{message}}</strong></p>
+			</div>
+		</div>
+	</div>
+	{% endif %}
+	
+	<!-- Div for query text piped up from the controller -->
+	{% if pageTitle %}
+	<div id="queryText">
+		<div class="ui-widget">
+			<div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
+				<p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+				<strong>{{pageTitle}}</strong></p>
+			</div>
+		</div>
+	</div>
+	{% endif %}
+	
+	<div id="main_content">
+		<!-- Form for queries - styled by jquery ui -->
+		<h3><a href="#">Query</a></h3>
+		<div>
+			<form action="/" method="GET">
+    			<p>User: <input type="text" name="user" id="user"></p>
+				<p>Site: <input type="text" name="site" id="site"></p>
+				<p>Sensor: <input type="text" name="sensor" id="sensor"></p>
+				<p>Start Date: <input type="text" name="start" id="start_date"></p>
+				<p>End Date: <input type="text" name="end" id="end_date"></p>
+      			<div><input type="submit" value="Retrieve records"></div>
+    		</form>
+		</div>
+		<!-- Table of Amazon errors - styled by jquery ui -->
+		<h3><a href="#">Amazon S3 Errors</a></h3>
+		<div>
+			<table cellpadding="0" cellspacing="0" border="0" class="display" id="amazon_errors">
+				<thead>
+					<tr>
+						<th>User</th>
+						<th>Site</th>
+						<th>Sensor</th>
+						<th>Last Hit</th>
+						<th>Timestamp</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for sensor in s3errors %}
+					<tr>
+						<td>{{sensor.user}}</td>
+						<td>{{sensor.site}}</td>
+						<td>{{sensor.sensor}}</td>
+						<td>{{sensor.lastHit}}</td>
+						<td>{{sensor.timeStamp}}</td>
+					</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+		</div>
+		<!-- Table of Sensor errors - styled by jquery ui -->
+		<h3><a href="#">Sensor Errors</a></h3>
+		<div>
+			<table cellpadding="0" cellspacing="0" border="0" class="display" id="sensor_errors">
+				<thead>
+					<tr>
+						<th>User</th>
+						<th>Site</th>
+						<th>Sensor</th>
+						<th>Last Hit</th>
+						<th>Timestamp</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for sensor in sensorErrors %}
+					<tr>
+						<td>{{sensor.user}}</td>
+						<td>{{sensor.site}}</td>
+						<td>{{sensor.sensor}}</td>
+						<td>{{sensor.lastHit}}</td>
+						<td>{{sensor.timeStamp}}</td>
+					</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+		<!-- Throughput Graph  -->
+		</div>
+		{% if graphName %}
+		<h3><a href="#">Sensor Throughput</a></h3>
+		<div id="chart_div"></div>
+		{% endif %}
+		</div>
+	</body>
+</html>
