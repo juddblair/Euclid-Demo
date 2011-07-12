@@ -99,7 +99,7 @@ class MainPage(webapp.RequestHandler):
 			s3errors = resultsTuple[1]
 			
 			if sensorErrors is None and s3errors is None:
-				message = 'No recent errors. Rock on!'
+				message = 'No recent errors. Party on, Wayne!'
 		
 		else:
 			#Run a search for the specified params
@@ -120,7 +120,7 @@ class MainPage(webapp.RequestHandler):
 				s3errors = resultsTuple[1]
 				
 				if len(sensorErrors) is 0 and len(s3errors) is 0:
-					message = 'No recent errors. Rock on!'
+					message = 'No recent errors. Party on, Garth!'
 			except:
 				message = 'Malformed query: please try again.'
 				logging.error('Error for query: '+pageTitle)
