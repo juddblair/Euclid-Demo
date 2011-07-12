@@ -18,12 +18,6 @@ indexes:
 
 - kind: DataSample
   properties:
-  - name: asshole
-  - name: timeStamp
-  - name: sensor
-
-- kind: DataSample
-  properties:
   - name: numHits
   - name: sensor
   - name: timeStamp
