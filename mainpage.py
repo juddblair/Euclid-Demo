@@ -18,7 +18,7 @@ from models import DataSample
 	
 def render_samples(query_params,minDate,maxDate,numRecords):
 	"""
-	Queries for error data based on the input params
+	Queries Datastore for error data based on the input params
 	Returns a tuple of 2 lists of DataSamples in error state - (sensorerrors,s3errors)
 
 	query_params = list of string tuples (param,value) to be queried for (eg ('user','stark'))
